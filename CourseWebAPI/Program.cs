@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 
 
 var dbHost = "DUCVIET";
-var dbName = "dms_course";
+var dbName = "dms_course2";
 var dbPassword = "220901";
 
 var connectionString = $"Data Source ={dbHost};Initial Catalog={dbName};User ID=sa;Password={dbPassword}; TrustServerCertificate=True";

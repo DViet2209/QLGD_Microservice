@@ -17,7 +17,7 @@ namespace AccountWebAPI.Controllers
         {
             _teacheraccountDbContext = teacheraccountDbContext;
         }
-        [HttpGet("Teacheraccounts")]
+        [HttpGet("GetTeacherAccounts")]
         public ActionResult<IEnumerable<TeacherAccount>> GetTeacherAccount()
         {
             return _teacheraccountDbContext.Teacheraccounts;
@@ -29,30 +29,21 @@ namespace AccountWebAPI.Controllers
             var teacheraccount = await _teacheraccountDbContext.Teacheraccounts.FindAsync(teacheraccountId);
             return teacheraccount;
         }
-        [HttpPost]
+        [HttpPost("addTeacherAccount")]
         public async Task<ActionResult> Create(TeacherAccount teacherAccount)
         {
-            var outputParam = new SqlParameter("@output", System.Data.SqlDbType.NVarChar, 100);
-            outputParam.Direction = System.Data.ParameterDirection.Output;
-
-            await _teacheraccountDbContext.Database
-                .ExecuteSqlRawAsync("EXEC dbo.pr_TeacherAccountUserId @output OUTPUT", outputParam);
-
-            var newTeacherAccountID = outputParam.Value as string;
-
-            teacherAccount.TeacherAccountUserId = newTeacherAccountID;
             await _teacheraccountDbContext.Teacheraccounts.AddAsync(teacherAccount);
             await _teacheraccountDbContext.SaveChangesAsync();
             return Ok();
         }
-        [HttpPut]
+        [HttpPut("UpdateTeacherAccount")]
         public async Task<ActionResult> Update(TeacherAccount teacherAccount)
         {
             _teacheraccountDbContext.Teacheraccounts.Update(teacherAccount);
             await _teacheraccountDbContext.SaveChangesAsync();
             return Ok();
         }
-        [HttpDelete("{teacheraccountId:int}")]
+        [HttpDelete("DeleteTeacherAccountById/{teacheraccountId}")]
         public async Task<ActionResult<TeacherAccount>> Delete(int teacheraccountId)
         {
             var teacheraccount = await _teacheraccountDbContext.Teacheraccounts.FindAsync(teacheraccountId);
@@ -60,7 +51,7 @@ namespace AccountWebAPI.Controllers
             await _teacheraccountDbContext.SaveChangesAsync();
             return Ok();
         }
-        [HttpGet("search")]
+        [HttpGet("GetTeacherAccountSearch")]
         public ActionResult<IEnumerable<TeacherAccount>> SearchAccounts([FromQuery] string keyword)
         {
             var matchingTeacherAccounts = _teacheraccountDbContext.Teacheraccounts
@@ -83,7 +74,7 @@ namespace AccountWebAPI.Controllers
 
             return teacheraccount;
         }
-        [HttpGet("by-surname/{surname}")]
+        [HttpGet("GetTeacherAccountBySurname/{surname}")]
         public async Task<ActionResult<TeacherAccount>> GetBySurname(string surname)
         {
             var teacheraccount = await _teacheraccountDbContext.Teacheraccounts
@@ -94,7 +85,7 @@ namespace AccountWebAPI.Controllers
 
             return teacheraccount;
         }
-        [HttpGet("by-email/{email}")]
+        [HttpGet("GetTeacherAccountByEmail/{email}")]
         public async Task<ActionResult<TeacherAccount>> GetByEmail(string email)
         {
             var teacheraccount = await _teacheraccountDbContext.Teacheraccounts
@@ -105,7 +96,7 @@ namespace AccountWebAPI.Controllers
 
             return teacheraccount;
         }
-        [HttpGet("by-birthdate-range")]
+        [HttpGet("GetTeacherAccountByBirthdate")]
         public ActionResult<IEnumerable<TeacherAccount>> GetByBirthdateRange([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
         {
             var teacheraccountsInDateRange = _teacheraccountDbContext.Teacheraccounts
@@ -114,7 +105,7 @@ namespace AccountWebAPI.Controllers
 
             return teacheraccountsInDateRange;
         }
-        [HttpGet("by-sex/{sex}")]
+        [HttpGet("GetTeacherAccountBySex/{sex}")]
         public ActionResult<IEnumerable<TeacherAccount>> GetBySex(string sex)
         {
             var teacheraccountsBySex = _teacheraccountDbContext.Teacheraccounts
@@ -123,8 +114,8 @@ namespace AccountWebAPI.Controllers
 
             return teacheraccountsBySex;
         }
-        [HttpGet("by-address")]
-        public ActionResult<IEnumerable<TeacherAccount>> GetByAddress([FromQuery] string address)
+        [HttpGet("GetTeacherAccountByAddress/{address}")]
+        public ActionResult<IEnumerable<TeacherAccount>> GetByAddress(string address)
         {
             var teacheraccountsByAddress = _teacheraccountDbContext.Teacheraccounts
                 .Where(teacheraccount => teacheraccount.TeacherAccountAddress.Contains(address))
@@ -132,7 +123,7 @@ namespace AccountWebAPI.Controllers
 
             return teacheraccountsByAddress;
         }
-        [HttpGet("by-phone/{phone}")]
+        [HttpGet("GetTeacherAccountByPhone/{phone}")]
         public async Task<ActionResult<TeacherAccount>> GetByPhone(string phone)
         {
             var teacheraccount = await _teacheraccountDbContext.Teacheraccounts
@@ -156,7 +147,7 @@ namespace AccountWebAPI.Controllers
             return teacheraccountsByAge;
         }
 
-        [HttpGet("by-name/{name}")]
+        [HttpGet("GetTeacherAccountByName/{name}")]
         public ActionResult<IEnumerable<TeacherAccount>> GetByName(string name)
         {
             var teacheraccountsByName = _teacheraccountDbContext.Teacheraccounts
@@ -167,12 +158,21 @@ namespace AccountWebAPI.Controllers
 
             return teacheraccountsByName;
         }
-        [HttpGet("count")]
+        [HttpGet("GetTotalTeacherAccountCount")]
         public ActionResult<int> GetTotalTeacherAccountCount()
         {
             var totalTeacherAccounts = _teacheraccountDbContext.Teacheraccounts.Count();
             return totalTeacherAccounts;
         }
+        [HttpGet("GetTeacherAccountByTaxCode/{taxcode}")]
+        public ActionResult<IEnumerable<TeacherAccount>> GetByTaxCode(string taxcode)
+        {
+            var teacheraccountsByTaxcode = _teacheraccountDbContext.Teacheraccounts
+                .Where(teacheraccount =>
+                    teacheraccount.TeacherAccountTaxCode.Contains(taxcode))
+                .ToList();
 
+            return teacheraccountsByTaxcode;
+        }
     }
 }

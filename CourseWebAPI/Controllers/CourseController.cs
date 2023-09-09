@@ -51,6 +51,19 @@ namespace CourseWebAPI.Controllers
             await _courseDbContext.SaveChangesAsync();
             return Ok();
         }
-        //Tim danh sach lop hoc theo MSSV//
+
+        [HttpGet("courses")]
+        public ActionResult<IEnumerable<Course>> GetCourses()
+        {
+            return _courseDbContext.Courses;
+        }
+
+        [HttpPost("addCourse")]
+        public async Task<ActionResult> AddNewCourse(Course course)
+        {
+            await _courseDbContext.Courses.AddAsync(course);
+            await _courseDbContext.SaveChangesAsync();
+            return Ok();
+        }
     }
 }
