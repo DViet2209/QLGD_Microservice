@@ -24,5 +24,6 @@ namespace AccountWebAPI
             }
         }
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<TeacherAccount> Teacheraccounts { get; set; }
     }
 }
