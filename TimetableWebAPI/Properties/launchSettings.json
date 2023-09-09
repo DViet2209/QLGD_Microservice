@@ -4,17 +4,17 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:47508",
+      "applicationUrl": "http://localhost:31879",
       "sslPort": 0
     }
   },
   "profiles": {
-    "DetailsAccountWebAPI": {
+    "TimetableWebAPI": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "weatherforecast",
-      "applicationUrl": "http://localhost:5117",
+      "applicationUrl": "http://localhost:5164",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
