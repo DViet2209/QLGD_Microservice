@@ -11,8 +11,6 @@ namespace TimetableWebAPI.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("timetable_id")]
         public int TimetableId { get; set; }
-        [Column("timetable_idaccount")]
-        public int TimetableIdAccount { get; set; }
         [Column("timetable_courseid")]
         public int TimetableCourseId { get; set; }
         [Column("timetable_begintime")]
@@ -20,7 +18,7 @@ namespace TimetableWebAPI.Models
         [Column("timetable_endtime")]
         public DateTime TimetableEndTime { get; set; }
         [Column("timetable_status")]
-        public string TimetableStatus { get; set; }
+        public string? TimetableStatus { get; set; }
 
     }
 }

@@ -12,7 +12,7 @@ namespace CourseWebAPI.Models
         [Column("category_id")]
         public int CategoryId { get; set; } // khóa chính
         [Column("category_name")]
-        public string CategoryName { get; set; }
+        public string? CategoryName { get; set; }
     }
 
 }

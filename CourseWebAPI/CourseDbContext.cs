@@ -25,5 +25,6 @@ namespace CourseWebAPI
         }
         public DbSet<Course> Courses { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Tuition> Tuitions { get; set;}
     }
 }

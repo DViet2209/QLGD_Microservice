@@ -17,53 +17,137 @@ namespace CourseWebAPI.Controllers
             _courseDbContext = courseDbContext;
         }
 
-        [HttpGet]
-        public ActionResult<IEnumerable<Course>> GetCourse()
+
+        [HttpGet("DanhSachLophoc")]
+        public ActionResult<IEnumerable<Course>> DanhSachLophoc()
         {
-            return _courseDbContext.Courses;
-        }
-        [HttpGet("{courseId:int}")]
-        public async Task<ActionResult<Course>> GetById(int courseId)
-        {
-            var course = await _courseDbContext.Courses.FindAsync(courseId);
-            return course;
+            var courses = _courseDbContext.Courses.ToList();
+
+            if (courses.Count == 0)
+            {
+                return NotFound("Không tìm thấy khóa học nào.");
+            }
+            else
+            {
+                return courses;
+            }
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Create(Course course)
+
+        [HttpGet("TimLopHocTheoID")]
+        public async Task<ActionResult<Course>> TimLopHocTheoID([FromQuery] int id)
         {
-            await _courseDbContext.Courses.AddAsync(course);
-            await _courseDbContext.SaveChangesAsync();
-            return Ok();
-        }
-        [HttpPut]
-        public async Task<ActionResult> Update(Course course)
-        {
-            _courseDbContext.Courses.Update(course);
-            await _courseDbContext.SaveChangesAsync();
-            return Ok();
-        }
-        [HttpDelete("{courseId:int}")]
-        public async Task<ActionResult<Course>> Delete(int courseId)
-        {
-            var course = await _courseDbContext.Courses.FindAsync(courseId);
-            _courseDbContext.Courses.Remove(course);
-            await _courseDbContext.SaveChangesAsync();
-            return Ok();
+            var course = await _courseDbContext.Courses.FindAsync(id);
+            if (course == null)
+            {
+                return NotFound("Không tìm thấy Lớp học nào.");
+
+            }
+            else
+            {
+                return course;
+            }
+
         }
 
-        [HttpGet("courses")]
-        public ActionResult<IEnumerable<Course>> GetCourses()
+        [HttpGet("TimLopHocTheoGvID")]
+        public async Task<ActionResult<IEnumerable<Course>>> TimLopHocTheoGvID([FromQuery] string id)
         {
-            return _courseDbContext.Courses;
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("Vui lòng cung cấp mã số giáo viên.");
+            }
+
+            var courses = await _courseDbContext.Courses
+                .Where(c => c.TeacherAccountId.Contains(id))
+                .ToListAsync();
+
+            if (!courses.Any())
+            {
+                return NotFound($"Không tìm thấy lớp học nào do giáo viên có mã số {id} phụ trách.");
+            }
+
+            return courses;
         }
 
-        [HttpPost("addCourse")]
-        public async Task<ActionResult> AddNewCourse(Course course)
+
+        [HttpPost("ThemLopHoc")]
+        public async Task<ActionResult> ThemKhoaHoc(Course course)
         {
-            await _courseDbContext.Courses.AddAsync(course);
-            await _courseDbContext.SaveChangesAsync();
-            return Ok();
+            try
+            {
+                await _courseDbContext.Courses.AddAsync(course);
+                await _courseDbContext.SaveChangesAsync();
+                return Ok("Thêm lớp học thành công");
+            }
+            catch (Exception)
+            {
+
+                return NotFound("Thêm lớp học thất bại - không tồn tại mã loại lớp học - thiếu hay định dạng dữ liệu chưa đúng");
+            }
         }
+
+        [HttpPut("CapNhatLopHoc")]
+        public async Task<ActionResult> CapNhatLopHoc(Course course)
+        {
+            try
+            {
+                _courseDbContext.Courses.Update(course);
+                await _courseDbContext.SaveChangesAsync();
+                return Ok("Cập nhật thành công");
+            }
+            catch (Exception)
+            {
+
+                return NotFound("Cập nhật không thành công");
+            }
+        }
+
+        [HttpDelete("XoaLopHocTheoID")]
+        public async Task<ActionResult<Course>> XoaLopHocTheoID([FromQuery] int id)
+        {
+            try
+            {
+                var course = await _courseDbContext.Courses.FindAsync(id);
+                _courseDbContext.Courses.Remove(course);
+                await _courseDbContext.SaveChangesAsync();
+                return Ok("Xóa lớp học thành công");
+            }
+            catch (Exception)
+            {
+                return NotFound("Không tìm thấy lớp học");
+
+            }
+        }
+
+        [HttpGet("TimLopHocTheoNgay")]
+        public async Task<ActionResult<IEnumerable<Course>>> TimLopHocTheoNgay([FromQuery] DateTime date)
+        {
+            var courses = await _courseDbContext.Courses
+                .Where(c => c.CourseOpeningDay.Date == date.Date)
+                .ToListAsync();
+
+            if (!courses.Any())
+            {
+                return NotFound($"Không tìm thấy lớp học nào vào ngày {date.ToShortDateString()}");
+            }
+
+            return courses;
+        }
+        [HttpGet("TimLopHocTheoKhoangGia")]
+        public async Task<ActionResult<IEnumerable<Course>>> TimLopHocTheoKhoangGia([FromQuery] decimal minPrice, [FromQuery] decimal maxPrice)
+        {
+            var courses = await _courseDbContext.Courses
+                .Where(c => c.CourseTuition >= minPrice && c.CourseTuition <= maxPrice)
+                .ToListAsync();
+
+            if (!courses.Any())
+            {
+                return NotFound($"Không tìm thấy lớp học nào trong khoảng giá từ {minPrice} đến {maxPrice}");
+            }
+
+            return courses;
+        }
+
     }
 }

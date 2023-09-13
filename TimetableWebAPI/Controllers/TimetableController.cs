@@ -17,63 +17,97 @@ namespace TimetableWebAPI.Controllers
             _timetableDbContext = timetableDbContext;
 
         }
-        [HttpGet]
+        [HttpGet("DanhSachThoiKhoaBieu")]
         public ActionResult<IEnumerable<TimeTable>> GetTimetable()
         {
-            return _timetableDbContext.Timetables;
+            var TimeTable = _timetableDbContext.Timetables.ToList();
+
+            if (TimeTable.Count == 0)
+            {
+                return NotFound("Không tìm thấy thời khóa biểu nào.");
+            }
+            else
+            {
+                return TimeTable;
+            }
         }
-        [HttpGet("{timetableId:int}")]
-        public async Task<ActionResult<TimeTable>> GetById(int timetableId)
+
+        [HttpGet("XemThoiKhoaBieuTheoKhoaHocId")]
+        public ActionResult<IEnumerable<TimeTable>> XemThoiKhoaBieuTheoKhoaHocId([FromQuery] int id)
         {
-            var timetable = await _timetableDbContext.Timetables.FindAsync(timetableId);
-            return timetable;
+            var timeTablesForCourse = _timetableDbContext.Timetables
+                .Where(tt => tt.TimetableCourseId == id)
+                .ToList();
+
+            if (timeTablesForCourse.Count == 0)
+            {
+                return NotFound($"Không tìm thấy thời khóa biểu cho khóa học có ID {id}.");
+            }
+            else
+            {
+                return timeTablesForCourse;
+            }
         }
-        [HttpPost("addTimetable")]
-        public async Task<ActionResult> Create(TimeTable timetable)
+
+        [HttpPost("ThemThoiKhoaBieu")]
+        public async Task<ActionResult> ThemThoiKhoaBieu(TimeTable TimeTable)
         {
-            await _timetableDbContext.Timetables.AddAsync(timetable);
-            await _timetableDbContext.SaveChangesAsync();
-            return Ok();
+            try
+            {
+                await _timetableDbContext.Timetables.AddAsync(TimeTable);
+                await _timetableDbContext.SaveChangesAsync();
+                return Ok("Thêm thời khóa biểu học thành công");
+            }
+            catch (Exception)
+            {
+                return NotFound("Thêm thời khóa biểu thất bại");
+            }
         }
-        [HttpPut]
-        public async Task<ActionResult> Update(TimeTable timeTable)
+        [HttpGet("XemThoiKhoaBieuTheoNgay")]
+        public ActionResult<IEnumerable<TimeTable>> XemThoiKhoaBieuTheoNgay([FromQuery] DateTime date)
         {
-            _timetableDbContext.Timetables.Update(timeTable);
-            await _timetableDbContext.SaveChangesAsync();
-            return Ok();
+            var timeTablesForDate = _timetableDbContext.Timetables
+                .Where(tt => tt.TimetableBeginTime.Date == date.Date)
+                .ToList();
+
+            if (timeTablesForDate.Count == 0)
+            {
+                return NotFound($"Không tìm thấy thời khóa biểu cho ngày {date.ToShortDateString()}.");
+            }
+            else
+            {
+                return timeTablesForDate;
+            }
         }
-       //[HttpDelete("DeleteByAccountId/{accountId}")]//
-       // public async Task<IActionResult> DeleteByAccountId(int accountId)
-       // {
-       //     var timetable = await _timetableDbContext.Timetables.FindAsync(accountId);
-
-       //     if (timetable == null)
-       //     {
-       //         return NotFound(); // Trả về 404 Not Found nếu không tìm thấy dòng dữ liệu cần xóa.
-        //    }
-
-       //     _timetableDbContext.Timetables.Remove(timetable);
-       //     await _timetableDbContext.SaveChangesAsync();
-
-       //     return NoContent(); // Trả về 204 No Content khi xóa thành công.
-    //    }
-
-        [HttpDelete("DeleteByTimetableId/{timetableId}")]
-        public async Task<ActionResult<TimeTable>> DeleteByTimetableId(int timetableId)
+        [HttpDelete("XoaThoiKhoaBieu/{timetableId}")]
+        public ActionResult XoaThoiKhoaBieu(int timetableId)
         {
-            var timetable = await _timetableDbContext.Timetables.FindAsync(timetableId);
-            _timetableDbContext.Timetables.Remove(timetable);
-            await _timetableDbContext.SaveChangesAsync();
-            return Ok();
+            var timetableToDelete = _timetableDbContext.Timetables.Find(timetableId);
+
+            if (timetableToDelete == null)
+            {
+                return NotFound($"Không tìm thấy thời khóa biểu có ID {timetableId}.");
+            }
+
+            _timetableDbContext.Timetables.Remove(timetableToDelete);
+            _timetableDbContext.SaveChanges();
+
+            return Ok($"Đã xóa thời khóa biểu có id là {timetableId}");
         }
-        [HttpGet("searchbyAccountId/{id}")]
-        public async Task<IEnumerable<TimeTable>> SearchTimetables(int id)
+        [HttpPut("CapNhatThoiKhoaBieu")]
+        public async Task<ActionResult> CapNhatThoiKhoaBieu(TimeTable TimeTable)
         {
-            var matchingTimeTables = _timetableDbContext.Timetables
-                .Where(timetable => timetable.TimetableIdAccount == id).ToList();
-
-            return matchingTimeTables;
+            try
+            {
+                _timetableDbContext.Update(TimeTable);
+                await _timetableDbContext.SaveChangesAsync();
+                return Ok("Cập nhật thành công");
+            }
+            catch (Exception ex)
+            {
+                return NotFound("Không tìm thấy Thời khóa biểu.");
+            }
         }
-
     }
 }
+
